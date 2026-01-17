@@ -29,8 +29,8 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0
       npm-packlist:
-        specifier: ^8.0.2
-        version: 8.0.2
+        specifier: ^10.0.3
+        version: 10.0.3
       ora:
         specifier: ^5.4.1
         version: 5.4.1
@@ -2264,14 +2264,6 @@ packages:
         tarball: https://registry.npmmirror.com/ieee754/-/ieee754-1.2.1.tgz,
       }
 
-  ignore-walk@6.0.5:
-    resolution:
-      {
-        integrity: sha512-VuuG0wCnjhnylG1ABXT3dAuIpTNDs/G8jlpmwXY03fXoXy/8ZK8/T+hMzt8L4WnrLCJgdybqgPagnF/f97cg3A==,
-        tarball: https://registry.npmmirror.com/ignore-walk/-/ignore-walk-6.0.5.tgz,
-      }
-    engines: { node: ^14.17.0 || ^16.13.0 || >=18.0.0 }
-
   ignore-walk@8.0.0:
     resolution:
       {
@@ -2986,14 +2978,6 @@ packages:
         tarball: https://registry.npmmirror.com/npm-packlist/-/npm-packlist-10.0.3.tgz,
       }
     engines: { node: ^20.17.0 || >=22.9.0 }
-
-  npm-packlist@8.0.2:
-    resolution:
-      {
-        integrity: sha512-shYrPFIS/JLP4oQmAwDyk5HcyysKW8/JLTEA32S0Z5TzvpaeeX2yMFfoK1fjEBnCBvVyIB/Jj/GBFdm0wsgzbA==,
-        tarball: https://registry.npmmirror.com/npm-packlist/-/npm-packlist-8.0.2.tgz,
-      }
-    engines: { node: ^14.17.0 || ^16.13.0 || >=18.0.0 }
 
   npm-pick-manifest@11.0.3:
     resolution:
@@ -5144,10 +5128,6 @@ snapshots:
 
   ieee754@1.2.1: {}
 
-  ignore-walk@6.0.5:
-    dependencies:
-      minimatch: 9.0.5
-
   ignore-walk@8.0.0:
     dependencies:
       minimatch: 10.1.1
@@ -5462,10 +5442,6 @@ snapshots:
     dependencies:
       ignore-walk: 8.0.0
       proc-log: 6.1.0
-
-  npm-packlist@8.0.2:
-    dependencies:
-      ignore-walk: 6.0.5
 
   npm-pick-manifest@11.0.3:
     dependencies:

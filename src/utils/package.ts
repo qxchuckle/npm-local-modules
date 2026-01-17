@@ -153,7 +153,6 @@ const needsFullArborist = (pkg: PackageManifest): string | false => {
 
 /**
  * 获取 pack tree
- * 优化：简单包使用 minimal tree，避免扫描 node_modules
  */
 export const getPackTree = async (workingDir: string): Promise<PackTree> => {
   const startTime = Date.now();
@@ -173,7 +172,7 @@ export const getPackTree = async (workingDir: string): Promise<PackTree> => {
     return tree;
   }
 
-  // 简单包使用 minimal tree（快很多）
+  // 简单包使用 minimal tree
   const tree = createMinimalTree(workingDir, pkg) as PackTree;
   logger.debug(`minimal tree ${logger.duration(startTime)}`);
   return tree;
@@ -186,7 +185,9 @@ export const getPackFiles = async (workingDir: string): Promise<string[]> => {
   const tree = await getPackTree(workingDir);
 
   const startTime = Date.now();
-  const files = await packlist(tree);
+  const files = await packlist(tree, {
+    path: workingDir,
+  });
   logger.debug(`packlist ${logger.duration(startTime)}`);
 
   return files;

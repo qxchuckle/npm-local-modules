@@ -48,7 +48,7 @@
     "ignore": "^7.0.5",
     "light-date": "^1.2.0",
     "mri": "^1.2.0",
-    "npm-packlist": "^8.0.2",
+    "npm-packlist": "^10.0.3",
     "ora": "^5.4.1",
     "semver": "^7.5.4"
   },
