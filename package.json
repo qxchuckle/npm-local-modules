@@ -1,5 +1,5 @@
 {
-  "name": "npm-local-modules",
+  "name": "@qcqx/nlm",
   "version": "1.1.1",
   "type": "module",
   "description": "npm local modules - 本地 npm 包联调工具",
@@ -87,5 +87,8 @@
   },
   "engines": {
     "node": ">=16.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
