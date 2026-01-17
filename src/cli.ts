@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
 import mri from 'mri';
+import { createRequire } from 'module';
 import { push } from './commands/push';
 import { install } from './commands/install';
 import { update } from './commands/update';
@@ -11,15 +12,16 @@ import { initRuntime, updateRuntime, type Locale } from './core/runtime';
 import logger from './utils/logger';
 import { t, initI18n, detectSystemLocale } from './utils/i18n';
 
+const require = createRequire(import.meta.url);
 const program = new Command();
 
 // 获取版本号
-const getVersion = async (): Promise<string> => {
+const getVersion = (): string => {
   try {
-    const pkg = await import('../package.json');
-    return pkg.default?.version ?? pkg.version;
+    const pkg = require('../package.json');
+    return pkg.version;
   } catch {
-    return '1.0.0';
+    return '-';
   }
 };
 
@@ -97,7 +99,7 @@ const main = async () => {
   program
     .name('nlm')
     .description(t('cliDescription'))
-    .version(await getVersion())
+    .version(getVersion())
     .option('--debug', t('optionDebug'))
     .option('--lang <locale>', t('optionLang'))
     .hook('preSubcommand', () => {
