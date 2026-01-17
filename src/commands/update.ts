@@ -1,6 +1,9 @@
-import { join } from 'path';
 import { UpdateOptions, NlmError } from '../types';
-import { LATEST_VERSION, getPackageStoreDir } from '../constants';
+import {
+  LATEST_VERSION,
+  getPackageStoreDir,
+  getProjectPackageDir,
+} from '../constants';
 import {
   parsePackageName,
   readPackageManifest,
@@ -159,7 +162,7 @@ const updateSinglePackage = async (
 
   logger.info(`更新 ${logger.pkg(name, versionToInstall)}`);
 
-  // 复制包到 node_modules
+  // 复制包到 .nlm 并在 node_modules 中创建软链接
   const copyResult = await copyPackageToProject(
     name,
     versionToInstall,
@@ -167,9 +170,11 @@ const updateSinglePackage = async (
     force,
   );
 
+  // 获取 .nlm 中的实际包路径
+  const nlmPackageDir = getProjectPackageDir(workingDir, name);
+
   // 处理依赖冲突
-  const nlmPkgPath = join(workingDir, 'node_modules', name);
-  const nlmPkg = readPackageManifest(nlmPkgPath);
+  const nlmPkg = readPackageManifest(nlmPackageDir);
 
   if (projectPkg && nlmPkg) {
     const conflicts = detectDependencyConflicts(nlmPkg, projectPkg);
@@ -178,8 +183,7 @@ const updateSinglePackage = async (
     }
   }
 
-  // 替换嵌套的同名包
-  const nlmPackageDir = join(workingDir, 'node_modules', name);
+  // 替换嵌套的同名包（使用软链接）
   await replaceNestedPackages(workingDir, name, nlmPackageDir);
 
   // 更新 lockfile 中的 signature

@@ -1,6 +1,6 @@
 import { join } from 'path';
 import { UninstallOptions, NlmError } from '../types';
-import { PROJECT_NLM_DIR } from '../constants';
+import { PROJECT_NLM_DIR, getProjectPackageDir } from '../constants';
 import {
   parsePackageName,
   isValidProject,
@@ -42,7 +42,7 @@ export const uninstall = async (options: UninstallOptions): Promise<void> => {
   const startTime = Date.now();
   logger.spin(`卸载 ${logger.pkg(name)}...`);
 
-  // 从 node_modules 中移除包
+  // 从 node_modules 中移除软链接
   const nodeModulesPath = join(workingDir, 'node_modules', name);
   if (pathExistsSync(nodeModulesPath)) {
     removeSync(nodeModulesPath);
@@ -60,10 +60,24 @@ export const uninstall = async (options: UninstallOptions): Promise<void> => {
     }
   }
 
-  // 从 .nlm 目录中移除包相关文件（如冲突依赖目录）
-  const nlmPackageDir = join(workingDir, PROJECT_NLM_DIR, name);
+  // 从 .nlm 目录中移除包（包括所有版本）
+  const nlmPackageDir = getProjectPackageDir(workingDir, name);
   if (pathExistsSync(nlmPackageDir)) {
     removeSync(nlmPackageDir);
+
+    // 如果是 scoped 包，检查 scope 目录是否为空
+    if (isScopedPackage(name)) {
+      const scope = getPackageScope(name);
+      if (scope) {
+        const scopeDir = join(workingDir, PROJECT_NLM_DIR, scope);
+        if (pathExistsSync(scopeDir)) {
+          const scopeContents = readdirSync(scopeDir);
+          if (scopeContents.length === 0) {
+            removeSync(scopeDir);
+          }
+        }
+      }
+    }
   }
 
   // 从 lockfile 中移除

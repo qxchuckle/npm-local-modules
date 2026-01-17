@@ -1,6 +1,10 @@
 import { join } from 'path';
 import { InstallOptions, NlmError } from '../types';
-import { LATEST_VERSION, getPackageStoreDir } from '../constants';
+import {
+  LATEST_VERSION,
+  getPackageStoreDir,
+  getProjectPackageDir,
+} from '../constants';
 import {
   parsePackageName,
   readPackageManifest,
@@ -91,24 +95,9 @@ export const install = async (options: InstallOptions): Promise<void> => {
     }
   }
 
-  // 检查是否已安装且 signature 相同
-  if (!force && isPackageInLockfile(workingDir, name)) {
-    const lockEntry = getLockfilePackage(workingDir, name);
-    const storeSignature = getStorePackageSignature(name, versionToInstall);
-
-    if (lockEntry?.signature === storeSignature) {
-      logger.info(
-        `${logger.pkg(name)}@${logger.version(versionToInstall)} 已是最新`,
-      );
-      return;
-    }
-  }
-
-  // 复制包到 node_modules
+  // 复制包到 .nlm 并在 node_modules 中创建软链接
   const startTime = Date.now();
-  logger.spin(
-    `安装 ${logger.pkg(name)}@${logger.version(versionToInstall)}...`,
-  );
+  logger.spin(`安装 ${logger.pkg(name)}@${logger.version(versionToInstall)}`);
 
   const copyResult = await copyPackageToProject(
     name,
@@ -117,22 +106,32 @@ export const install = async (options: InstallOptions): Promise<void> => {
     force,
   );
 
+  if (!copyResult.changed && !force) {
+    logger.spinSuccess(
+      `安装完成 ${logger.pkg(name, versionToInstall)} ${logger.duration(startTime)}`,
+    );
+    return;
+  }
+
+  // 获取 .nlm 中的实际包路径
+  const nlmPackageDir = getProjectPackageDir(workingDir, name);
+
   // 处理依赖冲突
   logger.spinText(`处理依赖冲突...`);
   const projectPkg = readPackageManifest(workingDir);
-  const nlmPkgPath = join(workingDir, 'node_modules', name);
-  const nlmPkg = readPackageManifest(nlmPkgPath);
+  const nlmPkg = readPackageManifest(nlmPackageDir);
 
   if (projectPkg && nlmPkg) {
     const conflicts = detectDependencyConflicts(nlmPkg, projectPkg);
     if (conflicts.length > 0) {
       await handleDependencyConflicts(name, conflicts, workingDir);
+      // 重新启动 spinner
+      logger.spin(`继续安装...`);
     }
   }
 
-  // 替换嵌套的同名包
+  // 替换嵌套的同名包（使用软链接指向 .nlm 中的包）
   logger.spinText(`替换嵌套包...`);
-  const nlmPackageDir = join(workingDir, 'node_modules', name);
   await replaceNestedPackages(workingDir, name, nlmPackageDir);
 
   // 更新 lockfile

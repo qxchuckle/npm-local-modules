@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
-import { join } from 'path';
+import { join, relative } from 'path';
 import { CopyResult } from '../types';
-import { getPackageStoreDir } from '../constants';
+import { getPackageStoreDir, getProjectPackageDir } from '../constants';
 import {
   computeFilesSignature,
   readSignatureFile,
@@ -84,7 +84,7 @@ export const copyPackageToStore = async (
 };
 
 /**
- * 从 store 复制包到项目的 node_modules
+ * 从 store 复制包到项目的 .nlm 并在 node_modules 中创建软链接
  * @param packageName 包名
  * @param version 版本
  * @param targetDir 目标项目目录
@@ -102,14 +102,22 @@ export const copyPackageToProject = async (
     throw new Error(`${packageName}@${version} 不存在于 store`);
   }
 
-  const destDir = join(targetDir, 'node_modules', packageName);
+  // 项目 .nlm 中的包目录
+  const nlmPackageDir = getProjectPackageDir(targetDir, packageName);
+  // node_modules 中的链接目标
+  const nodeModulesDir = join(targetDir, 'node_modules', packageName);
   const storeSignature = readSignatureFile(storeDir);
 
-  // 检查是否需要更新
-  if (!force && pathExistsSync(destDir)) {
-    const existingSignature = readSignatureFile(destDir);
+  // 检查 .nlm 中是否已存在且签名相同
+  if (!force && pathExistsSync(nlmPackageDir)) {
+    const existingSignature = readSignatureFile(nlmPackageDir);
+    logger.debug(
+      `${logger.pkg(packageName, version)} signature: exists=${existingSignature} current=${storeSignature}`,
+    );
     if (existingSignature === storeSignature) {
-      logger.info(`${logger.pkg(packageName, version)} 已是最新，跳过复制`);
+      // 确保软链接存在且正确
+      await ensureSymlink(nlmPackageDir, nodeModulesDir);
+      logger.info(`${logger.pkg(packageName, version)} no change`);
       return {
         success: true,
         signature: storeSignature,
@@ -118,14 +126,16 @@ export const copyPackageToProject = async (
     }
   }
 
-  // 清理目标目录并复制
-  removeSync(destDir);
-  ensureDirSync(destDir);
+  // 清理并复制到 .nlm
+  removeSync(nlmPackageDir);
+  ensureDirSync(nlmPackageDir);
+  await fs.copy(storeDir, nlmPackageDir);
 
-  await fs.copy(storeDir, destDir);
+  // 在 node_modules 中创建软链接
+  await ensureSymlink(nlmPackageDir, nodeModulesDir);
 
   logger.success(
-    `已安装 ${logger.pkg(packageName, version)} 到 ${logger.path(destDir)}`,
+    `已安装 ${logger.pkg(packageName, version)} -> ${logger.path(nlmPackageDir)}`,
   );
 
   return {
@@ -133,6 +143,40 @@ export const copyPackageToProject = async (
     signature: storeSignature,
     changed: true,
   };
+};
+
+/**
+ * 确保软链接存在且指向正确的目标
+ * @param target 链接目标（实际文件位置）
+ * @param linkPath 链接路径（node_modules 中的位置）
+ */
+const ensureSymlink = async (
+  target: string,
+  linkPath: string,
+): Promise<void> => {
+  const expectedTarget = relative(join(linkPath, '..'), target);
+
+  // 使用 lstat 检查路径本身（不跟随软链接）
+  try {
+    const stats = await fs.lstat(linkPath);
+    if (stats.isSymbolicLink()) {
+      const currentTarget = await fs.readlink(linkPath);
+      if (currentTarget === expectedTarget || currentTarget === target) {
+        // 链接已正确
+        return;
+      }
+    }
+    // 删除现有的目录或错误的链接
+    removeSync(linkPath);
+  } catch {
+    // 路径不存在，继续创建
+  }
+
+  // 确保父目录存在（处理 scoped packages 如 @scope/pkg）
+  await fs.ensureDir(join(linkPath, '..'));
+
+  // 创建相对路径的软链接
+  await fs.symlink(expectedTarget, linkPath, 'junction');
 };
 
 /**

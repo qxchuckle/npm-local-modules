@@ -1,16 +1,16 @@
-import { join } from 'path';
+import { join, relative } from 'path';
 import fs from 'fs-extra';
 import {
   pathExistsSync,
   readdirSync,
-  statSync,
+  lstatSync,
   removeSync,
 } from '../utils/file';
 import logger from '../utils/logger';
 
 /**
  * 查找 node_modules 中所有同名包的路径
- * 递归搜索嵌套的 node_modules
+ * 递归搜索嵌套的 node_modules（跳过软链接目录）
  */
 export const findAllNestedPackages = (
   nodeModulesDir: string,
@@ -32,9 +32,10 @@ export const findAllNestedPackages = (
 
   for (const item of items) {
     const itemPath = join(nodeModulesDir, item);
-    const stats = statSync(itemPath);
+    const stats = lstatSync(itemPath);
 
-    if (!stats?.isDirectory()) {
+    // 跳过软链接和非目录
+    if (!stats?.isDirectory() || stats.isSymbolicLink()) {
       continue;
     }
 
@@ -43,6 +44,13 @@ export const findAllNestedPackages = (
       const scopedItems = readdirSync(itemPath);
       for (const scopedItem of scopedItems) {
         const scopedItemPath = join(itemPath, scopedItem);
+        const scopedStats = lstatSync(scopedItemPath);
+
+        // 跳过软链接
+        if (scopedStats?.isSymbolicLink()) {
+          continue;
+        }
+
         const nestedNodeModules = join(scopedItemPath, 'node_modules');
         findAllNestedPackages(nestedNodeModules, packageName, results);
       }
@@ -58,7 +66,7 @@ export const findAllNestedPackages = (
 
 /**
  * 替换所有嵌套的同名包
- * 将嵌套包指向 nlm 安装的版本
+ * 将嵌套包指向 nlm 安装的版本（使用软链接）
  */
 export const replaceNestedPackages = async (
   workingDir: string,
@@ -78,17 +86,18 @@ export const replaceNestedPackages = async (
 
   logger.info(`发现 ${nestedPaths.length} 个嵌套的 ${logger.pkg(packageName)}`);
 
-  // 替换所有嵌套包
+  // 替换所有嵌套包（使用软链接）
   let replaced = 0;
   for (const nestedPath of nestedPaths) {
     try {
       // 删除嵌套包
       removeSync(nestedPath);
 
-      // 复制 nlm 版本到嵌套位置
-      await fs.copy(sourceDir, nestedPath);
+      // 创建软链接到 nlm 版本
+      const relativeTarget = relative(join(nestedPath, '..'), sourceDir);
+      await fs.symlink(relativeTarget, nestedPath, 'junction');
 
-      logger.debug(`已替换: ${logger.path(nestedPath)}`);
+      logger.debug(`已替换: ${logger.path(nestedPath)} -> ${relativeTarget}`);
       replaced++;
     } catch (error) {
       logger.warn(`替换失败: ${nestedPath}`);

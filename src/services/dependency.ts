@@ -1,4 +1,4 @@
-import { execSync } from 'child_process';
+import { spawn, execSync } from 'child_process';
 import { join } from 'path';
 import { DependencyConflict, Dependencies, PackageManifest } from '../types';
 import { readPackageManifest } from '../utils/package';
@@ -82,40 +82,71 @@ export const handleDependencyConflicts = async (
   // 获取配置的包管理器
   const pm = getConfiguredPackageManager(workingDir);
 
-  // 安装冲突依赖
-  for (const conflict of conflicts) {
-    const depSpec = `${conflict.name}@${conflict.requiredVersion}`;
-    logger.info(`安装冲突依赖: ${depSpec}`);
+  // 收集所有需要安装的依赖
+  const depSpecs = conflicts.map(
+    (conflict) => `${conflict.name}@${conflict.requiredVersion}`,
+  );
 
-    try {
-      const installCmd = getInstallCommand(pm, depSpec);
-      execSync(installCmd, {
-        cwd: conflictDir,
-        stdio: 'inherit',
-      });
-    } catch (error) {
-      logger.error(`安装 ${depSpec} 失败`);
-      throw error;
-    }
+  logger.info(`安装冲突依赖: ${depSpecs.join(', ')}`);
+
+  try {
+    await runInstallCommand(pm, depSpecs, conflictDir);
+  } catch (error) {
+    logger.error(`安装冲突依赖失败`);
+    throw error;
   }
 };
 
 /**
+ * 执行安装命令并等待完成
+ */
+const runInstallCommand = (
+  pm: 'npm' | 'yarn' | 'pnpm' | string,
+  packageSpecs: string[],
+  cwd: string,
+): Promise<void> => {
+  const { cmd, args } = getInstallCommand(pm, packageSpecs);
+  const command = `${cmd} ${args.join(' ')}`;
+  logger.debug(`执行安装命令: ${logger.cmd(command)}`);
+  execSync(command, {
+    cwd,
+    stdio: 'inherit',
+    encoding: 'utf-8',
+  });
+  return Promise.resolve();
+  // return new Promise((resolve, reject) => {
+  //   const child = spawn(cmd, args, {
+  //     cwd,
+  //     stdio: 'inherit',
+  //     shell: true,
+  //   });
+
+  //   child.on('close', (code) => {
+  //     if (code === 0) {
+  //       resolve();
+  //     } else {
+  //       reject(new Error(`Command exited with code ${code}`));
+  //     }
+  //   });
+
+  //   child.on('error', (err) => {
+  //     reject(err);
+  //   });
+  // });
+};
+
+/**
  * 获取包管理器的安装命令
+ * 添加 --legacy-peer-deps 等标志跳过 peer dependency 检查
  */
 const getInstallCommand = (
-  pm: 'npm' | 'yarn' | 'pnpm',
-  packageSpec: string,
-): string => {
-  switch (pm) {
-    case 'yarn':
-      return `yarn add ${packageSpec}`;
-    case 'pnpm':
-      return `pnpm add ${packageSpec}`;
-    case 'npm':
-    default:
-      return `npm install ${packageSpec}`;
-  }
+  pm: 'npm' | 'yarn' | 'pnpm' | string,
+  packageSpecs: string[],
+): { cmd: string; args: string[] } => {
+  return {
+    cmd: pm,
+    args: ['install', ...packageSpecs, '--legacy-peer-deps'],
+  };
 };
 
 /**

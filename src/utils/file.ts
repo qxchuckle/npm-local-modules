@@ -140,6 +140,17 @@ export const statSync = (path: string): fs.Stats | null => {
 };
 
 /**
+ * 同步获取文件状态（不跟随符号链接）
+ */
+export const lstatSync = (path: string): fs.Stats | null => {
+  try {
+    return fs.lstatSync(path);
+  } catch {
+    return null;
+  }
+};
+
+/**
  * 读取文件内容
  */
 export const readFile = async (path: string): Promise<string> => {

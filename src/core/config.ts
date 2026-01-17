@@ -6,6 +6,7 @@ import {
   ensureDirSync,
   pathExistsSync,
 } from '../utils/file';
+import logger from '@/utils/logger';
 
 /**
  * 默认配置
@@ -15,12 +16,28 @@ const defaultConfig: NlmConfig = {
 };
 
 /**
+ * 初始化配置文件（如果不存在）
+ */
+export const initConfigIfNotExists = (workingDir: string): void => {
+  const configPath = getConfigPath(workingDir);
+  if (!pathExistsSync(configPath)) {
+    ensureDirSync(getProjectNlmDir(workingDir));
+    writeJsonSync(configPath, {});
+  }
+};
+
+/**
  * 读取项目配置
  */
 export const readConfig = (workingDir: string): NlmConfig => {
+  initConfigIfNotExists(workingDir);
   const configPath = getConfigPath(workingDir);
   const config = readJsonSync<NlmConfig>(configPath);
-  return { ...defaultConfig, ...config };
+  logger.debug(`读取项目配置: ${logger.path(configPath)}`);
+  logger.debug(`读取项目配置内容: ${JSON.stringify(config)}`);
+  const result = { ...defaultConfig, ...config };
+  logger.debug(`配置合并结果: ${JSON.stringify(result)}`);
+  return result;
 };
 
 /**

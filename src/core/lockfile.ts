@@ -27,7 +27,10 @@ export const readLockfile = (workingDir: string): LockfileConfig => {
 /**
  * 写入项目的 lockfile
  */
-export const writeLockfile = (workingDir: string, config: LockfileConfig): void => {
+export const writeLockfile = (
+  workingDir: string,
+  config: LockfileConfig,
+): void => {
   ensureDirSync(getProjectNlmDir(workingDir));
   const lockfilePath = getLockfilePath(workingDir);
   writeJsonSync(lockfilePath, config);
@@ -54,7 +57,7 @@ export const removeLockfile = (workingDir: string): void => {
  */
 export const getLockfilePackage = (
   workingDir: string,
-  packageName: string
+  packageName: string,
 ): LockfilePackageEntry | null => {
   const config = readLockfile(workingDir);
   return config.packages[packageName] || null;
@@ -66,7 +69,7 @@ export const getLockfilePackage = (
 export const addPackageToLockfile = (
   workingDir: string,
   packageName: string,
-  entry: LockfilePackageEntry
+  entry: LockfilePackageEntry,
 ): void => {
   const config = readLockfile(workingDir);
   config.packages[packageName] = entry;
@@ -78,11 +81,11 @@ export const addPackageToLockfile = (
  */
 export const removePackageFromLockfile = (
   workingDir: string,
-  packageName: string
+  packageName: string,
 ): void => {
   const config = readLockfile(workingDir);
   delete config.packages[packageName];
-  
+
   // 如果没有包了，删除整个 lockfile
   if (Object.keys(config.packages).length === 0) {
     removeLockfile(workingDir);
@@ -104,7 +107,7 @@ export const getLockfilePackageNames = (workingDir: string): string[] => {
  */
 export const isPackageInLockfile = (
   workingDir: string,
-  packageName: string
+  packageName: string,
 ): boolean => {
   const config = readLockfile(workingDir);
   return packageName in config.packages;
@@ -115,7 +118,7 @@ export const isPackageInLockfile = (
  */
 export const getPackageSignature = (
   workingDir: string,
-  packageName: string
+  packageName: string,
 ): string | null => {
   const entry = getLockfilePackage(workingDir, packageName);
   return entry?.signature || null;
@@ -127,11 +130,11 @@ export const getPackageSignature = (
 export const updatePackageSignature = (
   workingDir: string,
   packageName: string,
-  signature: string
+  signature: string,
 ): void => {
   const config = readLockfile(workingDir);
   const existing = config.packages[packageName];
-  
+
   if (existing) {
     existing.signature = signature;
     writeLockfile(workingDir, config);

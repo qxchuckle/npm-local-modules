@@ -22,10 +22,28 @@ export const satisfiesVersion = (version: string, range: string): boolean => {
 
 /**
  * 获取主版本号
+ * 支持版本范围（如 ^2.50.9, ~1.2.3）
  */
 export const getMajorVersion = (version: string): number | null => {
-  const cleanVersion = semver.clean(version) || version;
-  return semver.major(cleanVersion);
+  // 尝试直接清理版本号
+  const cleanVersion = semver.clean(version);
+  if (cleanVersion) {
+    return semver.major(cleanVersion);
+  }
+
+  // 如果是版本范围，尝试用 coerce 提取版本号
+  const coerced = semver.coerce(version);
+  if (coerced) {
+    return semver.major(coerced);
+  }
+
+  // 尝试用 minVersion 获取范围的最小版本
+  const minVer = semver.minVersion(version);
+  if (minVer) {
+    return semver.major(minVer);
+  }
+
+  return null;
 };
 
 /**

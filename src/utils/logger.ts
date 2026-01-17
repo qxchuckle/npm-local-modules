@@ -193,6 +193,24 @@ export const logger = {
       activeSpinner = null;
     }
   },
+
+  /**
+   * 启动当前 spinner
+   */
+  spinStart: (): void => {
+    if (activeSpinner) {
+      activeSpinner.start();
+    }
+  },
+
+  /**
+   * clear current spinner
+   */
+  spinClear: (): void => {
+    if (activeSpinner) {
+      activeSpinner.clear();
+    }
+  },
 };
 
 export default logger;

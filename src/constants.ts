@@ -91,3 +91,13 @@ export const getLockfilePath = (workingDir: string): string => {
 export const getConfigPath = (workingDir: string): string => {
   return join(getProjectNlmDir(workingDir), CONFIG_FILE_NAME);
 };
+
+/**
+ * 获取项目 .nlm 中指定包的路径
+ */
+export const getProjectPackageDir = (
+  workingDir: string,
+  packageName: string,
+): string => {
+  return join(getProjectNlmDir(workingDir), packageName);
+};
