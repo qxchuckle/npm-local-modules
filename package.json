@@ -36,7 +36,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/qxchuckle/npm-local-modules.git"
+    "url": "https://github.com/qxchuckle/nlm"
   },
   "author": "chuckle",
   "license": "MIT",
