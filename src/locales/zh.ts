@@ -22,7 +22,9 @@ export const zh = {
 
   // install 命令
   cmdInstallDesc: '安装 nlm 包到当前项目',
-  installNoPackage: '未指定包名，更新所有已安装的 nlm 包...',
+  installSelectPackages: '选择要安装的包',
+  installCancelled: '取消安装',
+  installStoreEmpty: '全局 store 中没有任何包，请先运行 nlm push 推送包',
   installRunPushFirst: '请先在 {name} 项目中运行 {cmd}',
   installNotInStore: '{pkg} 不存在于 store',
   installAvailableVersions: '可用版本: {versions}',
@@ -113,6 +115,7 @@ export const zh = {
 
   installed: '安装 {count} 个包',
   updated: '更新 {count} 个包',
+  tagInstalled: '[已安装]',
 
   // search 命令
   cmdSearchDesc: '搜索全局 store 中的包',

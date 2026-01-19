@@ -193,20 +193,34 @@ export const promptConfigItem = async (
   }
 };
 
+export interface MultiSelectChoice<T extends string> {
+  value: T;
+  suffix?: string;
+}
+
 /**
  * 通用多选交互
  */
 export const promptMultiSelect = async <T extends string>(
   message: string,
-  choices: T[],
+  choices: T[] | MultiSelectChoice<T>[],
   defaultSelected?: T[],
 ): Promise<T[]> => {
+  const normalizedChoices = choices.map((choice) => {
+    if (typeof choice === 'string') {
+      return { value: choice, suffix: undefined };
+    }
+    return choice;
+  });
+
   const selected = await checkbox({
     message,
-    choices: choices.map((choice) => ({
-      name: choice,
-      value: choice,
-      checked: defaultSelected?.includes(choice),
+    choices: normalizedChoices.map((choice) => ({
+      name: choice.suffix
+        ? `${choice.value} ${chalk.gray(choice.suffix)}`
+        : choice.value,
+      value: choice.value,
+      checked: defaultSelected?.includes(choice.value),
     })),
   });
 

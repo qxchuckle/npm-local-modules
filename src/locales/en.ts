@@ -25,8 +25,9 @@ export const en = {
 
   // install command
   cmdInstallDesc: 'Install nlm package to current project',
-  installNoPackage:
-    'No package specified, updating all installed nlm packages...',
+  installSelectPackages: 'Select packages to install',
+  installCancelled: 'Installation cancelled',
+  installStoreEmpty: 'No packages in global store, please run nlm push first',
   installRunPushFirst: 'Please run {cmd} in {name} project first',
   installNotInStore: '{pkg} does not exist in store',
   installAvailableVersions: 'Available versions: {versions}',
@@ -120,6 +121,7 @@ export const en = {
 
   installed: 'Installed {count} packages',
   updated: 'Updated {count} packages',
+  tagInstalled: '[installed]',
 
   // search command
   cmdSearchDesc: 'Search packages in global store',

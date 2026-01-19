@@ -54,7 +54,9 @@ Options:
 
 ### install
 
-安装包到当前项目，如果没有指定包名，则更新所有已安装的 nlm 包
+安装包到当前项目
+
+如果没有指定包名，则列出所有可安装的包，并交互式选择安装。
 
 ```bash
 nlm install [package] [options]
@@ -68,7 +70,9 @@ Options:
 
 ### update
 
-更新包到当前项目，如果没有指定包名，则更新所有已安装的 nlm 包
+更新包到当前项目
+
+如果没有指定包名，则更新所有已安装的 nlm 包
 
 ```bash
 nlm update [package] [options]
@@ -92,7 +96,9 @@ Options:
 
 ### uninstall
 
-在当前项目中卸载包
+在当前项目中卸载
+
+如果没有指定包名，则列出所有已安装的包，并交互式选择卸载。
 
 ```bash
 nlm uninstall [package]

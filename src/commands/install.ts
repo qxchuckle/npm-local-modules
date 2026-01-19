@@ -6,15 +6,17 @@ import {
   packageExistsInStore,
   addPackageUsage,
   getPackageVersionsInStore,
+  getAllPackagesInStore,
 } from '../core/store';
 import { addPackageToLockfile, isPackageInLockfile } from '../core/lockfile';
 import { copyPackageToProject } from '../services/copy';
 import { checkAndHandleDependencyConflicts } from '../services/dependency';
 import { replaceNestedPackages } from '../services/nested';
 import { getRuntime } from '../core/runtime';
-import { update, updateSinglePackage } from './update';
+import { updateSinglePackage } from './update';
 import logger from '../utils/logger';
 import { t } from '../utils/i18n';
+import { promptMultiSelect, type MultiSelectChoice } from '../utils/prompt';
 
 /**
  * 安装单个包
@@ -143,11 +145,34 @@ export const install = async (packageNames?: string[]): Promise<void> => {
     throw new NlmError(t('errInvalidProject'));
   }
 
-  // 如果没有指定包名，走 update 流程
+  // 如果没有指定包名，提供 store 中所有包的多选
   if (!packageNames || packageNames.length === 0) {
-    logger.info(t('installNoPackage'));
-    await update();
-    return;
+    const allPackages = getAllPackagesInStore();
+
+    if (allPackages.length === 0) {
+      logger.info(t('installStoreEmpty'));
+      return;
+    }
+
+    // 构建选项，已安装的包添加后缀
+    const choices: MultiSelectChoice<string>[] = allPackages.map((pkg) => ({
+      value: pkg,
+      suffix: isPackageInLockfile(workingDir, pkg)
+        ? t('tagInstalled')
+        : undefined,
+    }));
+
+    const selectedPackages = await promptMultiSelect(
+      t('installSelectPackages'),
+      choices,
+    );
+
+    if (selectedPackages.length === 0) {
+      logger.info(t('installCancelled'));
+      return;
+    }
+
+    packageNames = selectedPackages;
   }
 
   let installedCount = 0;
