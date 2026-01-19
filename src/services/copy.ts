@@ -1,5 +1,7 @@
 import fs from 'fs-extra';
 import { join, relative } from 'path';
+import { pipeline } from 'stream/promises';
+import * as tar from 'tar';
 import { CopyResult } from '../types';
 import { getPackageStoreDir, getProjectPackageDir } from '../constants';
 import {
@@ -12,14 +14,6 @@ import { ensureDirSync, removeSync, pathExistsSync } from '../utils/file';
 import { getRuntime } from '../core/runtime';
 import logger from '../utils/logger';
 import { ensureGitignoreHasNlm } from '@/utils/gitignore';
-
-/**
- * 复制单个文件
- */
-const copyFile = async (src: string, dest: string): Promise<void> => {
-  await fs.ensureDir(join(dest, '..'));
-  await fs.copy(src, dest);
-};
 
 /**
  * 复制包到全局 store
@@ -65,9 +59,10 @@ export const copyPackageToStore = async (): Promise<CopyResult> => {
   removeSync(storeDir);
   ensureDirSync(storeDir);
 
-  // 复制所有文件
-  await Promise.all(
-    files.map((file) => copyFile(join(workingDir, file), join(storeDir, file))),
+  // 使用 tar 流式打包解包
+  await pipeline(
+    tar.create({ cwd: workingDir, gzip: false }, files),
+    tar.extract({ cwd: storeDir }),
   );
 
   // 写入签名文件

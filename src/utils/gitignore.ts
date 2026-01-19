@@ -34,17 +34,7 @@ export const ensureGitignoreHasNlm = (workingDir: string): boolean => {
   }
 
   try {
-    const content = readFileSync(gitignorePath);
-
-    if (isIgnored(content, nlmEntry)) {
-      // 已经被忽略，无需添加
-      logger.debug(`${nlmEntry} 已在 .gitignore 中`);
-      return true;
-    }
-
-    // 添加 .nlm 到 .gitignore
-    const newLine = content.endsWith('\n') ? '' : '\n';
-    appendFileSync(gitignorePath, `${newLine}${nlmEntry}\n`);
+    appendGitignore(workingDir, [nlmEntry]);
     logger.info(t('gitignoreAdded', { entry: nlmEntry }));
     return true;
   } catch (error) {
@@ -52,4 +42,47 @@ export const ensureGitignoreHasNlm = (workingDir: string): boolean => {
     logger.debug(`添加 .gitignore 失败: ${error}`);
     return false;
   }
+};
+
+/**
+ * 读取 .gitignore 文件内容
+ * @param workingDir 项目目录
+ * @returns .gitignore 文件内容
+ */
+export const readGitignore = (workingDir: string): string => {
+  const gitignorePath = join(workingDir, '.gitignore');
+  if (!pathExistsSync(gitignorePath)) {
+    return '';
+  }
+  return readFileSync(gitignorePath);
+};
+
+/**
+ * 写入 .gitignore 文件内容
+ * @param workingDir 项目目录
+ * @param content .gitignore 文件内容
+ */
+export const appendGitignore = (
+  workingDir: string,
+  newEntry: string[],
+): boolean => {
+  const gitignorePath = join(workingDir, '.gitignore');
+  if (!pathExistsSync(gitignorePath)) {
+    return false;
+  }
+  const content = readFileSync(gitignorePath);
+  const needAppend = newEntry.filter((entry) => {
+    const isIgnoredResult = isIgnored(content, entry);
+    if (isIgnoredResult) {
+      logger.debug(`${entry} 已在 .gitignore 中`);
+    }
+    return !isIgnoredResult;
+  });
+  if (needAppend.length === 0) {
+    return true;
+  }
+  logger.debug(`添加到 .gitignore 的条目: ${needAppend.join('\n')}`);
+  const newLine = content.endsWith('\n') ? '' : '\n';
+  appendFileSync(gitignorePath, `${newLine}${needAppend.join('\n')}\n`);
+  return true;
 };

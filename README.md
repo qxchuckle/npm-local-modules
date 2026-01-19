@@ -142,6 +142,16 @@ nlm st
 --lang 设置语言 (zh/en)，默认自动推断
 ```
 
+### 构建后自动推送
+
+如果你需要持续构建并自动推送包，且原构建工具不支持指定构建后自动执行命令，可以结合 [concurrently](https://www.npmjs.com/package/concurrently) 和 [chokidar-cli](https://www.npmjs.com/package/chokidar-cli) 实现。
+
+```bash
+# npm run build:watch 是你的持续构建命令
+concurrently "npm run build:watch" "chokidar 'lib/**/*' -d 1000 -c 'echo 构建完成 && nlm push'"
+# 监听 lib 目录下的所有文件，当文件变化时自动推送，1000ms 防抖
+```
+
 # Reference
 
 - [yalc](https://github.com/wclr/yalc)

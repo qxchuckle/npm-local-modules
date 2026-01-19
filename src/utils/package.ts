@@ -6,6 +6,7 @@ import packlist from 'npm-packlist';
 import logger from './logger';
 import { isPackageInLockfile } from '@/core/lockfile';
 import { t } from './i18n';
+import { readGitignore } from './gitignore';
 
 /**
  * 创建 minimal arborist tree 对象
