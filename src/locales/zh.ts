@@ -47,6 +47,8 @@ export const zh = {
   uninstallInstallComplete: '已从远端安装 {pkg}',
   uninstallNote:
     '注意：请手动重新安装实际依赖（运行 npm install / yarn / pnpm install）',
+  uninstallSelectPackages: '选择要卸载的包',
+  uninstallCancelled: '取消卸载',
 
   // update 命令
   cmdUpdateDesc: '更新已安装的 nlm 包',
@@ -111,4 +113,15 @@ export const zh = {
 
   installed: '安装 {count} 个包',
   updated: '更新 {count} 个包',
+
+  // search 命令
+  cmdSearchDesc: '搜索全局 store 中的包',
+  searchStoreEmpty: '全局 store 中没有任何包',
+  searchNoMatch: '没有找到匹配 "{keyword}" 的包',
+  searchResults: '找到 {count} 个匹配 "{keyword}" 的包:',
+  searchVersions: '版本:',
+  searchSourcePath: '源路径:',
+  searchUsedBy: '使用项目:',
+  searchUsedByCount: '{count} 个',
+  searchTotal: '共 {count} 个包',
 };

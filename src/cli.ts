@@ -8,6 +8,7 @@ import { update } from './commands/update';
 import { uninstall } from './commands/uninstall';
 import { list } from './commands/list';
 import { config } from './commands/config';
+import { search } from './commands/search';
 import { NlmError } from './types';
 import { initRuntime, updateRuntime, type Locale } from './core/runtime';
 import logger from './utils/logger';
@@ -153,7 +154,7 @@ const main = async () => {
 
   // uninstall 命令
   program
-    .command('uninstall <packages...>')
+    .command('uninstall [packages...]')
     .alias('un')
     .description(t('cmdUninstallDesc'))
     .option('-i, --install', t('optionUninstallInstall'))
@@ -178,6 +179,13 @@ const main = async () => {
     .description(t('cmdConfigDesc'))
     .option('-g, --global', t('optionGlobal'))
     .action(wrapAction(async (options) => config(options.global ?? false)));
+
+  // search 命令
+  program
+    .command('search <keyword>')
+    .alias('s')
+    .description(t('cmdSearchDesc'))
+    .action(wrapAction(async (keyword: string) => search(keyword)));
 
   // 处理未知命令
   program.on('command:*', (operands) => {

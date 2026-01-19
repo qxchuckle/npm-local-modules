@@ -2,7 +2,6 @@ import { join } from 'path';
 import { NlmError } from '../types';
 import { PROJECT_NLM_DIR, getProjectPackageDir } from '../constants';
 import {
-  parsePackageName,
   isValidProject,
   isScopedPackage,
   getPackageScope,
@@ -12,12 +11,12 @@ import { removeSync, pathExistsSync, readdirSync } from '../utils/file';
 import { removePackageUsage } from '../core/store';
 import {
   removePackageFromLockfile,
-  isPackageInLockfile,
   getLockfilePackageNames,
 } from '../core/lockfile';
 import { getRuntime } from '../core/runtime';
 import logger from '../utils/logger';
 import { t } from '../utils/i18n';
+import { promptMultiSelect } from '../utils/prompt';
 import { runInstall } from '../services/dependency';
 
 export interface UninstallOptions {
@@ -87,9 +86,28 @@ export const uninstall = async (
     throw new NlmError(t('errInvalidProjectSimple'));
   }
 
+  // 如果没有指定包名，交互式选择
+  let targetPackages = packageNames;
+  if (targetPackages.length === 0) {
+    const installedPackages = getLockfilePackageNames(workingDir);
+    if (installedPackages.length === 0) {
+      logger.info(t('uninstallCancelled'));
+      return;
+    }
+    const selected = await promptMultiSelect(
+      t('uninstallSelectPackages'),
+      installedPackages,
+    );
+    if (selected.length === 0) {
+      logger.info(t('uninstallCancelled'));
+      return;
+    }
+    targetPackages = selected;
+  }
+
   // 验证并解析所有包名
   const validNames: string[] = [];
-  for (const packageName of packageNames) {
+  for (const packageName of targetPackages) {
     try {
       const name = validatePackageNameIsInstalled(workingDir, packageName);
       validNames.push(name);

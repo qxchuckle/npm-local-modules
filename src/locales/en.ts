@@ -52,6 +52,8 @@ export const en = {
   uninstallInstallComplete: 'Installed {pkg}',
   uninstallNote:
     'Note: Please manually reinstall actual dependencies (run npm install / yarn / pnpm install)',
+  uninstallSelectPackages: 'Select packages to uninstall',
+  uninstallCancelled: 'Uninstall cancelled',
 
   // update command
   cmdUpdateDesc: 'Update installed nlm packages',
@@ -118,4 +120,15 @@ export const en = {
 
   installed: 'Installed {count} packages',
   updated: 'Updated {count} packages',
+
+  // search command
+  cmdSearchDesc: 'Search packages in global store',
+  searchStoreEmpty: 'No packages in global store',
+  searchNoMatch: 'No packages found matching "{keyword}"',
+  searchResults: 'Found {count} packages matching "{keyword}":',
+  searchVersions: 'Versions:',
+  searchSourcePath: 'Source path:',
+  searchUsedBy: 'Used by:',
+  searchUsedByCount: '{count} projects',
+  searchTotal: 'Total {count} packages',
 };
