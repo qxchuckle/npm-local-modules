@@ -117,7 +117,16 @@ Options:
   -g, --global 配置全局设置 (默认是项目级配置)
 ```
 
-## Common Options
+### search
+
+搜索全局 store 中的包
+
+```bash
+nlm search <keyword>
+nlm s
+```
+
+### Common Options
 
 ```bash
 --debug 开启调试模式，输出详细日志
