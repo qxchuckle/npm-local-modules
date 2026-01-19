@@ -134,8 +134,8 @@ export const copyPackageToProject = async (
   // 在 node_modules 中创建软链接
   await ensureSymlink(nlmPackageDir, nodeModulesDir);
 
-  logger.success(
-    `已安装 ${logger.pkg(packageName, version)} -> ${logger.path(targetDir)}`,
+  logger.debug(
+    `${logger.pkg(packageName, version)} -> ${logger.path(targetDir)}`,
   );
 
   return {
