@@ -7,32 +7,23 @@ import {
   addPackageUsage,
   getPackageVersionsInStore,
 } from '../core/store';
-import { addPackageToLockfile } from '../core/lockfile';
+import { addPackageToLockfile, isPackageInLockfile } from '../core/lockfile';
 import { copyPackageToProject } from '../services/copy';
 import { checkAndHandleDependencyConflicts } from '../services/dependency';
 import { replaceNestedPackages } from '../services/nested';
 import { getRuntime } from '../core/runtime';
-import { update } from './update';
+import { update, updateSinglePackage } from './update';
 import logger from '../utils/logger';
 import { t } from '../utils/i18n';
 
 /**
- * 执行 install 命令
+ * 安装单个包
  */
-export const install = async (packageName?: string): Promise<void> => {
-  const { workingDir, force } = getRuntime();
-
-  // 检查当前目录是否是有效项目
-  if (!isValidProject(workingDir)) {
-    throw new NlmError(t('errInvalidProject'));
-  }
-
-  // 如果没有指定包名，走 update 流程
-  if (!packageName) {
-    logger.info(t('installNoPackage'));
-    await update();
-    return;
-  }
+const installPackage = async (
+  workingDir: string,
+  packageName: string,
+): Promise<void> => {
+  logger.info(t('installPackage', { pkg: logger.pkg(packageName) }));
 
   // 解析包名和版本
   const { name, version: requestedVersion } = parsePackageName(packageName);
@@ -57,7 +48,7 @@ export const install = async (packageName?: string): Promise<void> => {
     if (availableVersions.length > 0) {
       logger.info(
         t('installAvailableVersions', {
-          versions: availableVersions.join(', '),
+          versions: availableVersions.join(' '),
         }),
       );
     }
@@ -115,6 +106,70 @@ export const install = async (packageName?: string): Promise<void> => {
       pkg: `${logger.pkg(name, versionToInstall)} ${logger.duration(startTime)}`,
     }),
   );
+};
+
+/**
+ * 判断应该安装还是更新
+ */
+export const shouldInstallOrUpdate = (
+  workingDir: string,
+  packageName: string,
+): 'install' | 'update' => {
+  const { name, version } = parsePackageName(packageName);
+  if (!name) {
+    return 'install';
+  }
+  // 指定了版本，则安装
+  if (version) {
+    return 'install';
+  }
+  // 在 lockfile 中存在，且没有指定版本，则按 lock 更新
+  if (isPackageInLockfile(workingDir, name)) {
+    return 'update';
+  }
+  return 'install';
+};
+
+/**
+ * 执行 install 命令
+ */
+export const install = async (packageNames?: string[]): Promise<void> => {
+  const { workingDir } = getRuntime();
+
+  const startTime = Date.now();
+
+  // 检查当前目录是否是有效项目
+  if (!isValidProject(workingDir)) {
+    throw new NlmError(t('errInvalidProject'));
+  }
+
+  // 如果没有指定包名，走 update 流程
+  if (!packageNames || packageNames.length === 0) {
+    logger.info(t('installNoPackage'));
+    await update();
+    return;
+  }
+
+  let installedCount = 0;
+  let updatedCount = 0;
+
+  // 安装所有包
+  for (const packageName of packageNames) {
+    const action = shouldInstallOrUpdate(workingDir, packageName);
+    if (action === 'install') {
+      await installPackage(workingDir, packageName);
+      installedCount++;
+    } else {
+      await updateSinglePackage(packageName);
+      updatedCount++;
+    }
+  }
+
+  if (installedCount > 0 || updatedCount > 0) {
+    logger.success(
+      `${t('installed', { count: installedCount })} ${t('updated', { count: updatedCount })} ${logger.duration(startTime)}`,
+    );
+  }
 };
 
 export default install;

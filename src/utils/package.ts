@@ -1,9 +1,11 @@
 import { join, resolve } from 'path';
-import { PackageManifest, PackageName } from '../types';
+import { NlmError, PackageManifest, PackageName } from '../types';
 import { readJsonSync, writeJsonSync, pathExistsSync } from './file';
 import { getProjectPackageDir } from '../constants';
 import packlist from 'npm-packlist';
 import logger from './logger';
+import { isPackageInLockfile } from '@/core/lockfile';
+import { t } from './i18n';
 
 /**
  * 创建 minimal arborist tree 对象
@@ -216,4 +218,26 @@ export const readInstalledPackageManifest = (
   } catch {
     return null;
   }
+};
+
+/**
+ * 校验包名是否有效并检查是否已安装
+ */
+export const validatePackageNameIsInstalled = (
+  workingDir: string,
+  packageName: string,
+): string => {
+  const { name } = parsePackageName(packageName);
+  if (!name) {
+    throw new NlmError(t('errInvalidPackageName', { name: packageName }));
+  }
+  if (!isPackageInLockfile(workingDir, name)) {
+    throw new NlmError(
+      t('updateNotInstalled', {
+        pkg: logger.pkg(name),
+        cmd: logger.cmd('nlm install'),
+      }),
+    );
+  }
+  return name;
 };

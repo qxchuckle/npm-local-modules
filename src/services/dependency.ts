@@ -1,6 +1,11 @@
 import { spawn, execSync } from 'child_process';
 import { join } from 'path';
-import { DependencyConflict, Dependencies, PackageManifest } from '../types';
+import {
+  DependencyConflict,
+  Dependencies,
+  PackageManifest,
+  NlmError,
+} from '../types';
 import { readPackageManifest } from '../utils/package';
 import { areVersionRangesCompatible, satisfiesVersion } from '../utils/version';
 import { getConfiguredPackageManager } from '../core/config';
@@ -154,25 +159,17 @@ const runInstallCommand = (
     encoding: 'utf-8',
   });
   return Promise.resolve();
-  // return new Promise((resolve, reject) => {
-  //   const child = spawn(cmd, args, {
-  //     cwd,
-  //     stdio: 'inherit',
-  //     shell: true,
-  //   });
+};
 
-  //   child.on('close', (code) => {
-  //     if (code === 0) {
-  //       resolve();
-  //     } else {
-  //       reject(new Error(`Command exited with code ${code}`));
-  //     }
-  //   });
-
-  //   child.on('error', (err) => {
-  //     reject(err);
-  //   });
-  // });
+/**
+ * 执行包管理器安装命令，安装指定的包
+ */
+export const runInstall = async (
+  workingDir: string,
+  packageNames: string[],
+): Promise<void> => {
+  const pm = getConfiguredPackageManager(workingDir);
+  await runInstallCommand(pm, packageNames, workingDir);
 };
 
 /**

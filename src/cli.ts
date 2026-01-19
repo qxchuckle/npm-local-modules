@@ -126,36 +126,41 @@ const main = async () => {
 
   // install 命令
   program
-    .command('install [package]')
+    .command('install [packages...]')
     .alias('i')
     .description(t('cmdInstallDesc'))
     .option('-f, --force', t('optionForce'))
     .action(
-      wrapAction(async (packageName, options) => {
+      wrapAction(async (packageNames: string[], options) => {
         if (options.force) updateRuntime({ force: true });
-        await install(packageName);
+        await install(packageNames);
       }),
     );
 
   // update 命令
   program
-    .command('update [package]')
+    .command('update [packages...]')
     .alias('up')
     .description(t('cmdUpdateDesc'))
     .option('-f, --force', t('optionForce'))
     .action(
-      wrapAction(async (packageName, options) => {
+      wrapAction(async (packageNames: string[], options) => {
         if (options.force) updateRuntime({ force: true });
-        await update(packageName);
+        await update(packageNames);
       }),
     );
 
   // uninstall 命令
   program
-    .command('uninstall <package>')
+    .command('uninstall <packages...>')
     .alias('un')
     .description(t('cmdUninstallDesc'))
-    .action(wrapAction(async (packageName) => uninstall(packageName)));
+    .option('-i, --install', t('optionUninstallInstall'))
+    .action(
+      wrapAction(async (packageNames: string[], options) =>
+        uninstall(packageNames, { install: options.install ?? false }),
+      ),
+    );
 
   // ls 命令
   program

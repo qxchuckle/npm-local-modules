@@ -34,12 +34,17 @@ export const zh = {
   installContinue: '继续安装...',
   installReplaceNested: '替换嵌套包...',
   installComplete: '安装完成 {pkg}',
+  allPackagesInstalled: '所有包安装完成: {pkg}',
 
   // uninstall 命令
   cmdUninstallDesc: '卸载 nlm 包',
+  optionUninstallInstall: '卸载后自动从 npm 安装该包',
+  uninstallNoPackages: '没有要卸载的包',
   uninstallNotInstalled: '{pkg} 未通过 nlm 安装',
   uninstallPackage: '卸载 {pkg}...',
   uninstallComplete: '卸载完成 {pkg}',
+  uninstallInstalling: '正在从 npm 安装 {pkg}...',
+  uninstallInstallComplete: '已从远端安装 {pkg}',
   uninstallNote:
     '注意：请手动重新安装实际依赖（运行 npm install / yarn / pnpm install）',
 
@@ -87,4 +92,7 @@ export const zh = {
   gitignoreNotExist: '.gitignore 文件不存在，请手动添加 {entry} 到 .gitignore',
   gitignoreAdded: '已自动添加 {entry} 到 .gitignore',
   gitignoreAddFailed: '添加 {entry} 到 .gitignore 失败，请手动添加',
+
+  installed: '安装 {count} 个包',
+  updated: '更新 {count} 个包',
 };

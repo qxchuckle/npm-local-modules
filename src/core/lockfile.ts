@@ -82,12 +82,13 @@ export const addPackageToLockfile = (
 export const removePackageFromLockfile = (
   workingDir: string,
   packageName: string,
+  keepLockfile: boolean = true,
 ): void => {
   const config = readLockfile(workingDir);
   delete config.packages[packageName];
 
   // 如果没有包了，删除整个 lockfile
-  if (Object.keys(config.packages).length === 0) {
+  if (Object.keys(config.packages).length === 0 && !keepLockfile) {
     removeLockfile(workingDir);
   } else {
     writeLockfile(workingDir, config);

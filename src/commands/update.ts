@@ -1,6 +1,10 @@
 import { NlmError } from '../types';
 import { getProjectPackageDir } from '../constants';
-import { parsePackageName, isValidProject } from '../utils/package';
+import {
+  parsePackageName,
+  isValidProject,
+  validatePackageNameIsInstalled,
+} from '../utils/package';
 import { resolveVersion } from '../utils/version';
 import { packageExistsInStore, getPackageVersionsInStore } from '../core/store';
 import {
@@ -23,8 +27,8 @@ import { t } from '../utils/i18n';
  * 执行 update 命令
  * 根据 nlm-lock.json 更新依赖
  */
-export const update = async (packageName?: string): Promise<void> => {
-  const { workingDir, force } = getRuntime();
+export const update = async (packageNames?: string[]): Promise<void> => {
+  const { workingDir } = getRuntime();
 
   // 检查当前目录是否是有效项目
   if (!isValidProject(workingDir)) {
@@ -34,20 +38,12 @@ export const update = async (packageName?: string): Promise<void> => {
   // 获取要更新的包列表
   let packagesToUpdate: string[] = [];
 
-  if (packageName) {
-    // 更新指定包
-    const { name } = parsePackageName(packageName);
-
-    if (!isPackageInLockfile(workingDir, name)) {
-      throw new NlmError(
-        t('updateNotInstalled', {
-          pkg: logger.pkg(name),
-          cmd: logger.cmd('nlm install'),
-        }),
-      );
+  if (packageNames && packageNames.length > 0) {
+    // 更新指定的包
+    for (const packageName of packageNames) {
+      const name = validatePackageNameIsInstalled(workingDir, packageName);
+      packagesToUpdate.push(name);
     }
-
-    packagesToUpdate = [name];
   } else {
     // 更新所有包
     packagesToUpdate = getLockfilePackageNames(workingDir);

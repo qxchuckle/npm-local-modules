@@ -38,12 +38,18 @@ export const en = {
   installContinue: 'Continuing installation...',
   installReplaceNested: 'Replacing nested packages...',
   installComplete: 'Installation complete {pkg}',
+  allPackagesInstalled: 'All packages installed: {pkg}',
 
   // uninstall command
   cmdUninstallDesc: 'Uninstall nlm package',
+  optionUninstallInstall:
+    'Automatically install the package from npm after uninstalling',
+  uninstallNoPackages: 'No packages to uninstall',
   uninstallNotInstalled: '{pkg} was not installed via nlm',
   uninstallPackage: 'Uninstalling {pkg}...',
   uninstallComplete: 'Uninstallation complete {pkg}',
+  uninstallInstalling: 'Installing {pkg} from npm...',
+  uninstallInstallComplete: 'Installed {pkg}',
   uninstallNote:
     'Note: Please manually reinstall actual dependencies (run npm install / yarn / pnpm install)',
 
@@ -93,4 +99,7 @@ export const en = {
   gitignoreAdded: 'Automatically added {entry} to .gitignore',
   gitignoreAddFailed:
     'Failed to add {entry} to .gitignore, please add manually',
+
+  installed: 'Installed {count} packages',
+  updated: 'Updated {count} packages',
 };
