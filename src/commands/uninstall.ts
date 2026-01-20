@@ -91,7 +91,7 @@ export const uninstall = async (
   if (targetPackages.length === 0) {
     const installedPackages = getLockfilePackageNames(workingDir);
     if (installedPackages.length === 0) {
-      logger.info(t('uninstallCancelled'));
+      logger.info(t('uninstallNoPackages'));
       return;
     }
     const selected = await promptMultiSelectPro(
