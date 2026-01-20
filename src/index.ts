@@ -1,3 +1,6 @@
+// 导出 Cli 入口主函数
+export { nlmCliMain } from './cli/index';
+
 // 导出类型
 export * from './types';
 
