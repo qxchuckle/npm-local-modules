@@ -22,7 +22,7 @@ const program = new Command();
 // 获取版本号
 const getVersion = (): string => {
   try {
-    const pkg = require('../package.json');
+    const pkg = require('../../package.json');
     return pkg.version;
   } catch {
     return '-';
