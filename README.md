@@ -6,8 +6,7 @@
 
 在开发多个npm包时，除了在包内维护demo及测试用例外，往往还需要在项目中安装最新的包产物进行联调，以实际查看效果。
 
-[npm-link](https://docs.npmjs.com/cli/v11/commands/npm-link) 在有限程度上解决了这个问题，但使用上仍然存在一些约束与问题。  
-[yalc](https://github.com/wclr/yalc) 是我之前使用的工具，本工具也参考了其部分设计，但存在依赖冲突、间接依赖包不生效等问题。
+[npm-link](https://docs.npmjs.com/cli/v11/commands/npm-link) 在有限程度上解决了这个问题，但使用上仍然存在一些约束与问题。
 
 ## What
 
