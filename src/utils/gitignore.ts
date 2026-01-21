@@ -35,7 +35,7 @@ export const ensureGitignoreHasNlm = (workingDir: string): boolean => {
 
   try {
     appendGitignore(workingDir, [nlmEntry]);
-    logger.info(t('gitignoreAdded', { entry: nlmEntry }));
+    logger.debug(t('gitignoreAdded', { entry: nlmEntry }));
     return true;
   } catch (error) {
     logger.warn(t('gitignoreAddFailed', { entry: nlmEntry }));
