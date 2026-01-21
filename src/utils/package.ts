@@ -14,23 +14,6 @@ import { getRuntime } from '@/core/runtime';
 export { readPackageManifest, normalizePackage } from './pkg-manifest';
 
 /**
- * 创建 minimal arborist tree 对象
- * 这样可以避免使用 arborist.loadActual() 扫描整个 node_modules
- * 仅适用于没有 bundledDependencies 的包
- */
-const createMinimalTree = (workingDir: string, pkg: PackageManifest) => {
-  const resolvedPath = resolve(workingDir);
-  return {
-    path: resolvedPath,
-    realpath: resolvedPath,
-    package: pkg,
-    isProjectRoot: true,
-    edgesOut: new Map(),
-    workspaces: null,
-  };
-};
-
-/**
  * 解析包名和版本
  * 支持格式: @scope/name@version, name@version, @scope/name, name
  */
@@ -129,12 +112,12 @@ const hasWorkspaces = (pkg: PackageManifest): boolean => {
  * 检查是否需要使用完整的 arborist（用于构建依赖树）
  * 仅 bundledDependencies 需要完整 arborist 来遍历依赖树
  */
-const needsFullArborist = (pkg: PackageManifest): string | false => {
-  if (hasBundledDependencies(pkg)) {
-    return 'bundledDependencies';
-  }
-  return false;
-};
+// const needsFullArborist = (pkg: PackageManifest): string | false => {
+//   if (hasBundledDependencies(pkg)) {
+//     return 'bundledDependencies';
+//   }
+//   return false;
+// };
 
 /**
  * 检查 files 字段中是否包含需要递归处理子目录 .npmignore 的目录模式
@@ -198,31 +181,48 @@ const needsFallbackToPacklist = (
 };
 
 /**
+ * 创建 minimal arborist tree 对象
+ * 这样可以避免使用 arborist.loadActual() 扫描整个 node_modules
+ * 仅适用于没有 bundledDependencies 的包
+ */
+// const createMinimalTree = (workingDir: string, pkg: PackageManifest) => {
+//   const resolvedPath = resolve(workingDir);
+//   return {
+//     path: resolvedPath,
+//     realpath: resolvedPath,
+//     package: pkg,
+//     isProjectRoot: true,
+//     edgesOut: new Map(),
+//     workspaces: null,
+//   };
+// };
+
+/**
  * 获取 pack tree
  */
-export const getPackTree = async (workingDir: string): Promise<PackTree> => {
-  const startTime = Date.now();
+// export const getPackTree = async (workingDir: string): Promise<PackTree> => {
+//   const startTime = Date.now();
 
-  const pkg = readPackageManifest(workingDir);
-  if (!pkg) {
-    throw new Error(t('copyReadPackageJsonFailed'));
-  }
+//   const pkg = readPackageManifest(workingDir);
+//   if (!pkg) {
+//     throw new Error(t('copyReadPackageJsonFailed'));
+//   }
 
-  const reason = needsFullArborist(pkg);
-  if (reason) {
-    // 需要完整 arborist 时使用 loadActual
-    const Arborist = (await import('@npmcli/arborist')).default;
-    const arborist = new Arborist({ path: workingDir });
-    const tree = await arborist.loadActual();
-    logger.debug(`arborist tree (${reason}) ${logger.duration(startTime)}`);
-    return tree;
-  }
+//   const reason = needsFullArborist(pkg);
+//   if (reason) {
+//     // 需要完整 arborist 时使用 loadActual
+//     const Arborist = (await import('@npmcli/arborist')).default;
+//     const arborist = new Arborist({ path: workingDir });
+//     const tree = await arborist.loadActual();
+//     logger.debug(`arborist tree (${reason}) ${logger.duration(startTime)}`);
+//     return tree;
+//   }
 
-  // 简单包使用 minimal tree
-  const tree = createMinimalTree(workingDir, pkg) as PackTree;
-  logger.debug(`minimal tree ${logger.duration(startTime)}`);
-  return tree;
-};
+//   // 简单包使用 minimal tree
+//   const tree = createMinimalTree(workingDir, pkg) as PackTree;
+//   logger.debug(`minimal tree ${logger.duration(startTime)}`);
+//   return tree;
+// };
 
 /**
  * 使用 npm-packlist 获取文件列表（降级方案）
@@ -230,10 +230,13 @@ export const getPackTree = async (workingDir: string): Promise<PackTree> => {
 const getPackFilesWithPacklist = async (
   workingDir: string,
 ): Promise<string[]> => {
-  const tree = await getPackTree(workingDir);
+  // const tree = await getPackTree(workingDir);
 
   const startTime = Date.now();
-  const files = await packlist(tree, {
+  // const files = await packlist(tree, {
+  //   path: workingDir,
+  // });
+  const files = await packlist({
     path: workingDir,
   });
   logger.debug(`packlist ${logger.duration(startTime)}`);

@@ -1,5 +1,6 @@
 import chalk from 'chalk';
-import { select, input } from '@inquirer/prompts';
+import input from '@inquirer/input';
+import select from '@inquirer/select';
 import { select as selectPro } from 'inquirer-select-pro';
 import { t, type Messages } from './i18n';
 import { NlmConfig, NlmError } from '../types';

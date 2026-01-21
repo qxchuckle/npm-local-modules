@@ -41,8 +41,8 @@
   "author": "chuckle",
   "license": "MIT",
   "dependencies": {
-    "@inquirer/prompts": "^8.2.0",
-    "@npmcli/arborist": "^9.1.9",
+    "@inquirer/input": "^4.3.1",
+    "@inquirer/select": "^4.4.2",
     "chalk": "^4.1.2",
     "commander": "^11.1.0",
     "fs-extra": "^11.2.0",
@@ -50,11 +50,10 @@
     "inquirer-select-pro": "1.0.0-alpha.9",
     "light-date": "^1.2.0",
     "mri": "^1.2.0",
-    "normalize-package-data": "^8.0.0",
-    "npm-packlist": "^10.0.3",
+    "normalize-package-data": "^6.0.2",
+    "npm-packlist": "^6.0.1",
     "ora": "^5.4.1",
     "semver": "^7.5.4",
-    "tar": "^7.5.3",
     "tinyglobby": "^0.2.15",
     "xxhash-wasm": "^1.1.0"
   },
@@ -71,9 +70,9 @@
     "@rollup/plugin-replace": "^6.0.3",
     "@rollup/plugin-typescript": "^12.3.0",
     "@types/fs-extra": "^11.0.4",
-    "@types/node": "^20.10.0",
+    "@types/node": "^18.0.0",
     "@types/normalize-package-data": "^2.4.4",
-    "@types/npm-packlist": "^7.0.3",
+    "@types/npm-packlist": "^3.0.0",
     "@types/npmcli__arborist": "^6.3.1",
     "@types/semver": "^7.5.6",
     "@types/tar": "^6.1.13",
@@ -94,7 +93,7 @@
     "typescript-eslint": "^8.53.0"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">= 18.17"
   },
   "publishConfig": {
     "access": "public"
