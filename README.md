@@ -40,6 +40,7 @@ npm i @qcqx/nlm -g
 推送包到全局 store，并更新所有使用此包的项目。
 
 ```bash
+npm run build # push命令不会自动触发build，在push前先执行你的build命令
 nlm push [options]
 nlm p
 
