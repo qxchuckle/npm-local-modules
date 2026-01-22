@@ -18,7 +18,7 @@
 ## Installation
 
 ```bash
-npm i nlm -g
+npm i @qcqx/nlm -g
 ```
 
 ## Config
