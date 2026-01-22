@@ -29,8 +29,8 @@ const copyFilesByTopLevel = async (
   destDir: string,
 ): Promise<void> => {
   const copyStartTime = Date.now();
-  // 清理目标目录并复制文件
-  // removeSync(destDir);
+  // 清理目标目录
+  removeSync(destDir);
   // ensureDirSync(destDir);
   // 提取顶层路径
   const topLevelPaths = extractTopLevelPaths(files);

@@ -61,6 +61,7 @@ export const readSignatureFile = (dir: string): string => {
  */
 export const writeSignatureFile = (dir: string, signature: string): void => {
   const signaturePath = join(dir, SIGNATURE_FILE_NAME);
+  // fs.removeSync(signaturePath);
   fs.writeFileSync(signaturePath, signature);
 };
 

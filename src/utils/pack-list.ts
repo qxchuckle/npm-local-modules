@@ -188,15 +188,10 @@ export const getPackFilesInternal = async (
     // 没有 files 字段，使用 ignore 规则
     patterns = ['**/*'];
 
-    // 优先读取 .npmignore，否则使用 .gitignore
+    // 读取 .npmignore
     const npmIgnore = readIgnoreFile(workingDir, '.npmignore');
     if (npmIgnore) {
       ig.add(npmIgnore);
-    } else {
-      const gitIgnore = readIgnoreFile(workingDir, '.gitignore');
-      if (gitIgnore) {
-        ig.add(gitIgnore);
-      }
     }
   }
 
@@ -210,7 +205,7 @@ export const getPackFilesInternal = async (
     ignore: NPM_DEFAULT_IGNORES,
   });
 
-  // 应用 ignore 规则过滤（包含 .npmignore/.gitignore 和 files 中的排除模式）
+  // 应用 ignore 规则过滤
   const filteredFiles = ig.filter(mainFiles);
 
   // 获取始终包含的文件（README, LICENSE 等）- 这些不受 ignore 影响

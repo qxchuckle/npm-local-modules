@@ -1,3 +1,4 @@
+import { SIGNATURE_FILE_NAME } from '@/constants';
 import fs from 'fs-extra';
 import { dirname, join } from 'path';
 
@@ -253,6 +254,7 @@ export const copyWithHardlinks = async (
   srcDir: string,
   destDir: string,
 ): Promise<void> => {
+  // 清除目标路径中的源产物
   const entries = await fs.readdir(srcDir, { withFileTypes: true });
 
   await Promise.all(
@@ -268,6 +270,12 @@ export const copyWithHardlinks = async (
       entries.map(async (entry) => {
         const srcPath = join(srcDir, entry.name);
         const destPath = join(destDir, entry.name);
+
+        // 签名文件复制过去
+        if (entry.name === SIGNATURE_FILE_NAME) {
+          await fs.copyFile(srcPath, destPath);
+          return;
+        }
 
         if (entry.isDirectory()) {
           await _fn(srcPath, destPath);
