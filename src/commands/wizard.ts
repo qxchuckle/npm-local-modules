@@ -19,7 +19,7 @@ import { promptMultiSelectPro, promptSingleSelectPro } from '../utils/prompt';
 import type { UninstallOptions } from './uninstall';
 
 /** 引导项类型 */
-type GuideItemType =
+type WizardItemType =
   | 'boolean'
   | 'string'
   | 'packages-store'
@@ -28,28 +28,28 @@ type GuideItemType =
   | 'input';
 
 /** 单个可配置项 */
-interface GuideItem {
+interface WizardItem {
   id: string;
   labelKey: keyof Messages;
-  type: GuideItemType;
+  type: WizardItemType;
   /** input 类型时可选，允许留空 */
   optional?: boolean;
 }
 
 /** 命令元数据 */
-interface GuideCommandMeta {
+interface WizardCommandMeta {
   id: string;
   descriptionKey: keyof Messages;
-  items: GuideItem[];
+  items: WizardItem[];
 }
 
-const GUIDE_COMMANDS: GuideCommandMeta[] = [
+const WIZARD_COMMANDS: WizardCommandMeta[] = [
   {
     id: 'push',
     descriptionKey: 'cmdPushDesc',
     items: [
-      { id: 'force', labelKey: 'optionForce', type: 'boolean' },
       { id: 'build', labelKey: 'optionPushBuild', type: 'package-scripts' },
+      { id: 'force', labelKey: 'optionForce', type: 'boolean' },
       { id: 'packlist', labelKey: 'optionPacklist', type: 'boolean' },
       {
         id: 'packageManager',
@@ -152,7 +152,7 @@ const promptString = async (
 
 /** 根据项类型逐个提示并收集值 */
 const promptItemValue = async (
-  item: GuideItem,
+  item: WizardItem,
   workingDir: string,
 ): Promise<string | string[] | boolean> => {
   switch (item.type) {
@@ -271,15 +271,15 @@ const runCommand = async (
 type HelpProgram = { outputHelp?: () => void };
 
 /**
- * 执行 guide 命令：交互式选择命令与参数，再执行
+ * 执行 wizard 命令：交互式选择命令与参数，再执行
  * @param program 传入时，选择 help 会调用 program.outputHelp()
  */
-export const guide = async (program?: HelpProgram): Promise<void> => {
+export const wizard = async (program?: HelpProgram): Promise<void> => {
   const { workingDir } = getRuntime();
 
   // 1. 选择要执行的命令（支持按命令名、描述搜索），含 help 项
   const commandChoices = [
-    ...GUIDE_COMMANDS.map((cmd) => ({
+    ...WIZARD_COMMANDS.map((cmd) => ({
       name: `${cmd.id}  ${chalk.gray(t(cmd.descriptionKey))}`,
       value: cmd.id,
       searchText: `${cmd.id} ${t(cmd.descriptionKey)}`,
@@ -310,7 +310,7 @@ export const guide = async (program?: HelpProgram): Promise<void> => {
     program?.outputHelp?.();
     return;
   }
-  const meta = GUIDE_COMMANDS.find((c) => c.id === id)!;
+  const meta = WIZARD_COMMANDS.find((c) => c.id === id)!;
 
   // 无参数命令直接执行
   if (meta.items.length === 0) {
@@ -339,4 +339,4 @@ export const guide = async (program?: HelpProgram): Promise<void> => {
   await runCommand(id, values);
 };
 
-export default guide;
+export default wizard;

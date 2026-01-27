@@ -34,9 +34,9 @@ export const en = {
   pushUpdateFailed: 'Failed to update {path}: {error}',
   pushComplete: 'Push complete, updated {count} projects',
 
-  // guide command
-  cmdGuideDesc:
-    'Interactive guide to run other commands, multi-select and set options step by step',
+  // wizard command (interactive wizard)
+  cmdWizardDesc:
+    'Interactive wizard to select command and set options step by step',
   guideSelectCommand: 'Select command to run',
   guideHelpDesc: 'View nlm command help',
   guideSelectOptionsToSet:

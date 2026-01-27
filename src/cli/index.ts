@@ -10,7 +10,7 @@ import { list } from '@/commands/list';
 import { config } from '@/commands/config';
 import { search } from '@/commands/search';
 import { status } from '@/commands/status';
-import { guide } from '@/commands/guide';
+import { wizard } from '@/commands/wizard';
 import { NlmError } from '@/types';
 import { initRuntime, updateRuntime, type Locale } from '@/core/runtime';
 import logger from '@/utils/logger';
@@ -142,12 +142,12 @@ export const nlmCliMain = async (
       });
     });
 
-  // guide 命令（交互式引导）
+  // wizard 命令（交互式向导）
   program
-    .command('guide')
-    .alias('gui')
-    .description(t('cmdGuideDesc'))
-    .action(wrapAction(async () => guide(program)));
+    .command('wizard')
+    .alias('w')
+    .description(t('cmdWizardDesc'))
+    .action(wrapAction(async () => wizard(program)));
 
   // push 命令
   program
