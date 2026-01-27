@@ -25,49 +25,89 @@ export const findAllNestedPackages = (
   nodeModulesDir: string,
   packageName: string,
   results: string[] = [],
+  visitedDirs: Set<string> = new Set(), // 防止重复遍历
 ): string[] => {
-  if (!pathExistsSync(nodeModulesDir)) {
+  if (!pathExistsSync(nodeModulesDir) || visitedDirs.has(nodeModulesDir)) {
     return results;
   }
 
-  // 检查当前层级是否有目标包
-  const targetPath = join(nodeModulesDir, packageName);
-  if (pathExistsSync(targetPath)) {
-    results.push(targetPath);
-  }
+  visitedDirs.add(nodeModulesDir);
 
-  // 遍历当前 node_modules 下的所有目录（使用 withFileTypes 减少系统调用）
-  const entries = readdirWithFileTypesSync(nodeModulesDir);
+  // 使用栈进行深度优先遍历，避免递归过深
+  const dirStack: Array<{ path: string; depth: number }> = [];
+  dirStack.push({ path: nodeModulesDir, depth: 0 });
 
-  for (const entry of entries) {
-    // 跳过非目录、软链接和需要忽略的目录
-    if (
-      !entry.isDirectory() ||
-      entry.isSymbolicLink() ||
-      shouldSkipDir(entry.name)
-    ) {
+  // 可配置的最大深度，防止无限递归
+  const MAX_DEPTH = 20;
+
+  while (dirStack.length > 0) {
+    const { path: currentDir, depth } = dirStack.pop()!;
+
+    if (depth > MAX_DEPTH) {
+      continue; // 跳过过深嵌套
+    }
+
+    // 检查当前目录下是否存在目标包
+    const targetPath = join(currentDir, packageName);
+    if (pathExistsSync(targetPath)) {
+      results.push(targetPath);
+    }
+
+    // 读取当前目录
+    let entries;
+    try {
+      entries = readdirWithFileTypesSync(currentDir);
+    } catch (error) {
+      // 忽略无法访问的目录
       continue;
     }
 
-    const itemPath = join(nodeModulesDir, entry.name);
+    // 记录当前目录下需要进一步探索的目录
+    const subDirsToExplore: string[] = [];
 
-    if (entry.name.startsWith('@')) {
-      // scoped 包目录，遍历其子目录
-      const scopedEntries = readdirWithFileTypesSync(itemPath);
-      for (const scopedEntry of scopedEntries) {
-        // 跳过软链接
-        if (scopedEntry.isSymbolicLink()) {
-          continue;
-        }
-
-        const scopedItemPath = join(itemPath, scopedEntry.name);
-        const nestedNodeModules = join(scopedItemPath, 'node_modules');
-        findAllNestedPackages(nestedNodeModules, packageName, results);
+    for (const entry of entries) {
+      // 跳过非目录、软链接和需要忽略的目录
+      if (
+        !entry.isDirectory() ||
+        entry.isSymbolicLink() ||
+        shouldSkipDir(entry.name)
+      ) {
+        continue;
       }
-    } else if (entry.name !== packageName) {
-      // 普通包目录，检查其 node_modules
+
+      const itemPath = join(currentDir, entry.name);
+
+      // 检查是否已访问过
+      if (visitedDirs.has(itemPath)) {
+        continue;
+      }
+      visitedDirs.add(itemPath);
+
+      // 检查当前条目是否有node_modules目录
       const nestedNodeModules = join(itemPath, 'node_modules');
-      findAllNestedPackages(nestedNodeModules, packageName, results);
+
+      if (pathExistsSync(nestedNodeModules)) {
+        // 如果存在node_modules，将其加入栈中
+        if (!visitedDirs.has(nestedNodeModules)) {
+          visitedDirs.add(nestedNodeModules);
+          dirStack.push({
+            path: nestedNodeModules,
+            depth: depth + 1,
+          });
+        }
+      } else {
+        // 如果没有node_modules，将此目录加入待探索列表
+        subDirsToExplore.push(itemPath);
+      }
+    }
+
+    // 处理没有node_modules的目录
+    for (const subDir of subDirsToExplore) {
+      // 只探索没有node_modules的目录
+      dirStack.push({
+        path: subDir,
+        depth: depth + 1,
+      });
     }
   }
 
@@ -90,12 +130,7 @@ export const replaceNestedPackages = async (
   const topLevelPath = join(nodeModulesDir, packageName);
   const nestedPaths = allPaths.filter((p) => p !== topLevelPath);
 
-  logger.debug(t('nestedDebugPaths', { paths: nestedPaths.join('\n') }));
-
-  if (nestedPaths.length === 0) {
-    // logger.debug(t('nestedNoIndirectDeps', { pkg: logger.pkg(packageName) }));
-    return 0;
-  }
+  // logger.debug(t('nestedDebugPaths', { paths: nestedPaths.join('\n') }));
 
   logger.debug(
     t('nestedFoundIndirectDeps', {
@@ -103,6 +138,10 @@ export const replaceNestedPackages = async (
       pkg: logger.pkg(packageName),
     }),
   );
+
+  if (nestedPaths.length === 0) {
+    return 0;
+  }
 
   // 替换所有嵌套包（使用软链接）
   let replaced = 0;
