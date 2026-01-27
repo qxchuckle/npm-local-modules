@@ -38,6 +38,7 @@ export const en = {
   cmdGuideDesc:
     'Interactive guide to run other commands, multi-select and set options step by step',
   guideSelectCommand: 'Select command to run',
+  guideHelpDesc: 'View nlm command help',
   guideSelectOptionsToSet:
     'Select options to set (multi-select, empty for defaults)',
   guideSetValue: 'Set {label}',

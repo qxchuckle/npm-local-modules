@@ -267,18 +267,29 @@ const runCommand = async (
   }
 };
 
+/** program 类型：仅需输出帮助 */
+type HelpProgram = { outputHelp?: () => void };
+
 /**
  * 执行 guide 命令：交互式选择命令与参数，再执行
+ * @param program 传入时，选择 help 会调用 program.outputHelp()
  */
-export const guide = async (): Promise<void> => {
+export const guide = async (program?: HelpProgram): Promise<void> => {
   const { workingDir } = getRuntime();
 
-  // 1. 选择要执行的命令（支持按命令名、描述搜索）
-  const commandChoices = GUIDE_COMMANDS.map((cmd) => ({
-    name: `${cmd.id}  ${chalk.gray(t(cmd.descriptionKey))}`,
-    value: cmd.id,
-    searchText: `${cmd.id} ${t(cmd.descriptionKey)}`,
-  }));
+  // 1. 选择要执行的命令（支持按命令名、描述搜索），含 help 项
+  const commandChoices = [
+    ...GUIDE_COMMANDS.map((cmd) => ({
+      name: `${cmd.id}  ${chalk.gray(t(cmd.descriptionKey))}`,
+      value: cmd.id,
+      searchText: `${cmd.id} ${t(cmd.descriptionKey)}`,
+    })),
+    {
+      name: `help  ${chalk.gray(t('guideHelpDesc'))}`,
+      value: 'help',
+      searchText: `help ${t('guideHelpDesc')}`,
+    },
+  ];
   const commandId = await selectPro({
     message: t('guideSelectCommand'),
     multiple: false,
@@ -295,6 +306,10 @@ export const guide = async (): Promise<void> => {
   if (commandId == null) return;
 
   const id = commandId as string;
+  if (id === 'help') {
+    program?.outputHelp?.();
+    return;
+  }
   const meta = GUIDE_COMMANDS.find((c) => c.id === id)!;
 
   // 无参数命令直接执行

@@ -147,7 +147,7 @@ export const nlmCliMain = async (
     .command('guide')
     .alias('g')
     .description(t('cmdGuideDesc'))
-    .action(wrapAction(async () => guide()));
+    .action(wrapAction(async () => guide(program)));
 
   // push 命令
   program

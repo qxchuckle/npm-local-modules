@@ -107,6 +107,7 @@ export const zh = {
   // guide 命令
   cmdGuideDesc: '交互式引导执行其它命令，多选参数并逐个设置',
   guideSelectCommand: '选择要执行的命令',
+  guideHelpDesc: '查看 nlm 命令帮助',
   guideSelectOptionsToSet: '选择要设置的项（可多选，空选则用默认）',
   guideSetValue: '设置 {label}',
   guideYes: '是',
