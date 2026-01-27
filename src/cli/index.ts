@@ -62,22 +62,26 @@ const preParse = () => {
   const workingDir = process.cwd();
   const argv = mri(process.argv.slice(2), {
     boolean: ['debug'],
-    string: ['lang'],
+    string: ['lang', 'packageManager'],
   });
   const debug = argv.debug || isDebugEnabled();
   // 读取配置
   // 注意，像是push后workingDir可能发生变化所以往往还是需要重新读取配置
-  const nlmConfig = readConfig({
-    workingDir,
-    extendsGlobalConfig: true,
-    initConfig: false,
-  });
+  const nlmConfig = {
+    ...readConfig({
+      workingDir,
+      extendsGlobalConfig: true,
+      initConfig: false,
+    }),
+  };
+  const forcedPackageManager = argv.packageManager;
   const locale = parseLocale(argv.lang || nlmConfig.lang);
   return {
     workingDir,
     debug,
     locale,
     nlmConfig,
+    forcedPackageManager,
   };
 };
 
@@ -109,7 +113,8 @@ export const nlmCliMain = async (
   parseOptions?: ParseOptions,
 ) => {
   // 预解析全局选项（允许未知选项，避免过早退出）
-  const { workingDir, debug, locale, nlmConfig } = preParse();
+  const { workingDir, debug, locale, nlmConfig, forcedPackageManager } =
+    preParse();
 
   // 初始化 i18n（用于命令描述翻译）
   initI18n(locale);
@@ -121,6 +126,7 @@ export const nlmCliMain = async (
     .version(getVersion())
     .option('--debug', t('optionDebug'))
     .option('--lang <locale>', t('optionLang'))
+    .option('--packageManager <name>', t('optionPackageManager'))
     .hook('preSubcommand', () => {
       // 在执行子命令前初始化运行时配置
       initRuntime({
@@ -128,6 +134,7 @@ export const nlmCliMain = async (
         debug,
         locale,
         nlmConfig,
+        forcedPackageManager,
       });
     });
 

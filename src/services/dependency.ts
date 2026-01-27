@@ -9,6 +9,7 @@ import {
 import { readPackageManifest } from '../utils/package';
 import { areVersionRangesCompatible, satisfiesVersion } from '../utils/version';
 import { getConfiguredPackageManager } from '../core/config';
+import { getRuntime } from '../core/runtime';
 import { ensureDirSync, pathExistsSync } from '../utils/file';
 import { getProjectNlmDir } from '../constants';
 import logger from '../utils/logger';
@@ -97,8 +98,9 @@ export const handleDependencyConflicts = async (
 
   ensureDirSync(nlmPkgDir);
 
-  // 获取配置的包管理器
-  const pm = getConfiguredPackageManager(workingDir);
+  const pm =
+    getRuntime().forcedPackageManager ||
+    getConfiguredPackageManager(workingDir);
 
   // 收集所有需要安装的依赖
   const depSpecs = needInstall.map(
@@ -174,7 +176,9 @@ export const runInstall = async (
   workingDir: string,
   packageNames: string[],
 ): Promise<void> => {
-  const pm = getConfiguredPackageManager(workingDir);
+  const pm =
+    getRuntime().forcedPackageManager ||
+    getConfiguredPackageManager(workingDir);
   await runInstallCommand(pm, packageNames, workingDir);
 };
 

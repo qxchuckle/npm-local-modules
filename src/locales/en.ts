@@ -3,6 +3,8 @@ export const en = {
   cliDescription: 'npm local modules - Local npm package development tool',
   optionDebug: 'Enable debug mode with verbose logging',
   optionLang: 'Set language (zh/en)',
+  optionPackageManager:
+    'Specify package manager to use (npm/pnpm/yarn/<custom>)',
 
   // push command
   cmdPushDesc:

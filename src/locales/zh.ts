@@ -3,6 +3,7 @@ export const zh = {
   cliDescription: 'npm local modules - 本地 npm 包联调工具',
   optionDebug: '开启调试模式，输出详细日志',
   optionLang: '设置语言 (zh/en)',
+  optionPackageManager: '指定使用的包管理器 (npm/pnpm/yarn/<custom>)',
 
   // push 命令
   cmdPushDesc: '推送当前包到全局 store，并更新所有使用此包的项目',

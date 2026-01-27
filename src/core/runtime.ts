@@ -21,6 +21,8 @@ export interface RuntimeConfig {
   usePacklist: boolean;
   /** nlm 配置 */
   nlmConfig: NlmConfig;
+  /** 命令行强制指定的包管理器 */
+  forcedPackageManager?: string;
 }
 
 const defaultConfig: RuntimeConfig = {
@@ -30,6 +32,7 @@ const defaultConfig: RuntimeConfig = {
   locale: 'en',
   usePacklist: false,
   nlmConfig: DEFAULT_CONFIG,
+  forcedPackageManager: undefined,
 };
 
 let currentConfig: RuntimeConfig = { ...defaultConfig };
