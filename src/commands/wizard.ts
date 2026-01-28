@@ -70,11 +70,11 @@ const WIZARD_COMMANDS: WizardCommandMeta[] = [
     id: 'install',
     descriptionKey: 'cmdInstallDesc',
     items: [
-      {
-        id: 'packages',
-        labelKey: 'installSelectPackages',
-        type: 'packages-store',
-      },
+      // {
+      //   id: 'packages',
+      //   labelKey: 'installSelectPackages',
+      //   type: 'packages-store',
+      // },
       { id: 'force', labelKey: 'optionForce', type: 'boolean' },
       {
         id: 'packageManager',
@@ -106,11 +106,11 @@ const WIZARD_COMMANDS: WizardCommandMeta[] = [
     id: 'uninstall',
     descriptionKey: 'cmdUninstallDesc',
     items: [
-      {
-        id: 'packages',
-        labelKey: 'uninstallSelectPackages',
-        type: 'packages-lockfile',
-      },
+      // {
+      //   id: 'packages',
+      //   labelKey: 'uninstallSelectPackages',
+      //   type: 'packages-lockfile',
+      // },
       { id: 'install', labelKey: 'optionUninstallInstall', type: 'boolean' },
     ],
   },
