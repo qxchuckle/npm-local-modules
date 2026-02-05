@@ -1,5 +1,5 @@
-import select from '@inquirer/select';
 import input from '@inquirer/input';
+import { select } from '../utils/inquirer-select';
 import { select as selectPro } from '../utils/select-pro';
 import chalk from 'chalk';
 import { getRuntime, updateRuntime } from '../core/runtime';

@@ -1,3 +1,5 @@
+import '@inquirer/type';
+
 // 导出 Cli 入口主函数
 export { nlmCliMain } from './cli/index';
 
