@@ -206,6 +206,8 @@ export const zh = {
   depProjectHas: '项目中 {version}',
   depInstallFailed: '安装冲突依赖失败',
   depDebugRunCommand: '执行安装命令: {cmd}',
+  depInvalidVersionProject: '不符合 semver 的版本（项目）：{name}@{version}',
+  depInvalidVersionNlm: '不符合 semver 的版本（依赖包）：{name}@{version}',
 
   // select-pro（可搜索选择）
   selectProEmptyText: '暂无结果。',

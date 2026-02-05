@@ -222,6 +222,8 @@ export const en = {
   depProjectHas: 'project has {version}',
   depInstallFailed: 'Failed to install conflicting dependencies',
   depDebugRunCommand: 'Running install command: {cmd}',
+  depInvalidVersionProject: 'Non-semver version (project): {name}@{version}',
+  depInvalidVersionNlm: 'Non-semver version (dependency): {name}@{version}',
 
   // select-pro (searchable select)
   selectProEmptyText: 'No results.',

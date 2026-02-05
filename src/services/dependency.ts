@@ -7,7 +7,11 @@ import {
   NlmError,
 } from '../types';
 import { readPackageManifest } from '../utils/package';
-import { areVersionRangesCompatible, satisfiesVersion } from '../utils/version';
+import {
+  areVersionRangesCompatible,
+  satisfiesVersion,
+  isSemverVersionOrRange,
+} from '../utils/version';
 import { getConfiguredPackageManager } from '../core/config';
 import { getRuntime } from '../core/runtime';
 import { ensureDirSync, pathExistsSync } from '../utils/file';
@@ -44,8 +48,31 @@ export const detectDependencyConflicts = (
       continue;
     }
 
-    // 检查版本范围是否兼容（有交集）
-    if (!areVersionRangesCompatible(requiredVersion, installedVersion)) {
+    // 不符合 semver 的版本打 warn，并区分来源
+    if (!isSemverVersionOrRange(requiredVersion)) {
+      logger.warn(
+        t('depInvalidVersionNlm', { name, version: requiredVersion }),
+      );
+    }
+    if (!isSemverVersionOrRange(installedVersion)) {
+      logger.warn(
+        t('depInvalidVersionProject', {
+          name,
+          version: installedVersion,
+        }),
+      );
+    }
+
+    try {
+      // 检查版本范围是否兼容（有交集），无效范围（如 latest）会跳过
+      if (!areVersionRangesCompatible(requiredVersion, installedVersion)) {
+        conflicts.push({
+          name,
+          requiredVersion,
+          installedVersion,
+        });
+      }
+    } catch {
       conflicts.push({
         name,
         requiredVersion,
@@ -135,13 +162,17 @@ const filterConflictsNeedInstall = (
       return true;
     }
 
-    // 检查已安装的版本是否满足 nlm 包要求的版本范围
-    const isCompatible = satisfiesVersion(
-      installedPkg.version,
-      conflict.requiredVersion,
-    );
-
-    return !isCompatible;
+    try {
+      // 检查已安装的版本是否满足 nlm 包要求的版本范围
+      const isCompatible = satisfiesVersion(
+        installedPkg.version,
+        conflict.requiredVersion,
+      );
+      return !isCompatible;
+    } catch {
+      // 无法比较时（如 requiredVersion 为 latest），跳过，视为已满足不重复安装
+      return false;
+    }
   });
 };
 

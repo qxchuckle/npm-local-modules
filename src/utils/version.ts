@@ -66,12 +66,25 @@ export const areVersionRangesCompatible = (
   required: string,
   installed: string,
 ): boolean => {
+  const r = String(required || '')
+    .trim()
+    .toLowerCase();
+  const i = String(installed || '')
+    .trim()
+    .toLowerCase();
+  if (r === i) return true;
+  if (!r || !i) return false;
+  if (!isSemverVersionOrRange(r) || !isSemverVersionOrRange(i)) return false;
   try {
     // 使用 semver.intersects 检查两个范围是否有交集
     return semver.intersects(required, installed);
   } catch {
-    // 如果解析失败，回退到主版本号比较
-    return isSameMajorVersion(required, installed);
+    // 如果解析失败，尝试主版本号比较
+    try {
+      return isSameMajorVersion(required, installed);
+    } catch {
+      return false;
+    }
   }
 };
 
@@ -95,6 +108,15 @@ export const isValidVersionRange = (range: string): boolean => {
   } catch {
     return false;
   }
+};
+
+/**
+ * 检查是否为符合 semver 的版本或版本范围（精确版本、^1.0.0、~2.0.0 等）
+ * 用于检测 "latest"、空字符串等非规范写法
+ */
+export const isSemverVersionOrRange = (value: string): boolean => {
+  if (value == null || String(value).trim() === '') return false;
+  return isValidVersion(value) || isValidVersionRange(value);
 };
 
 /**
