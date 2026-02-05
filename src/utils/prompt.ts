@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import input from '@inquirer/input';
+import { input } from './inquirer-input';
 import { select } from './inquirer-select';
 import { select as selectPro } from './select-pro';
 import { t, type Messages } from './i18n';
