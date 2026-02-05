@@ -223,6 +223,15 @@ export const en = {
   depInstallFailed: 'Failed to install conflicting dependencies',
   depDebugRunCommand: 'Running install command: {cmd}',
 
+  // select-pro (searchable select)
+  selectProEmptyText: 'No results.',
+  selectProPlaceholder: 'Type to search',
+  selectProHelpTabSelect: 'tab select',
+  selectProHelpCtrlAToggleAll: 'ctrl+a toggle all',
+  selectProHelpEnterConfirm: 'enter confirm',
+  selectProHelpBackspaceAgainToRemove: 'backspace again to remove',
+  selectProHelpArrowKeys: 'Use arrow keys to reveal more options',
+
   // debug logs (low priority)
   debugProjectConfig: 'Project config: {path}',
   debugProjectConfigContent: 'Project config content: {content}',

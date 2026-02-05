@@ -79,14 +79,22 @@ export const areVersionRangesCompatible = (
  * 检查版本是否有效（精确版本号）
  */
 export const isValidVersion = (version: string): boolean => {
-  return semver.valid(version) !== null;
+  try {
+    return semver.valid(version) !== null;
+  } catch {
+    return false;
+  }
 };
 
 /**
  * 检查是否为有效的 npm 版本范围（如 ^1.0.0、~2.0.0、>=1.0.0）
  */
 export const isValidVersionRange = (range: string): boolean => {
-  return semver.validRange(range) !== null;
+  try {
+    return semver.validRange(range) !== null;
+  } catch {
+    return false;
+  }
 };
 
 /**

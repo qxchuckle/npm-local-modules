@@ -207,6 +207,15 @@ export const zh = {
   depInstallFailed: '安装冲突依赖失败',
   depDebugRunCommand: '执行安装命令: {cmd}',
 
+  // select-pro（可搜索选择）
+  selectProEmptyText: '暂无结果。',
+  selectProPlaceholder: '输入以搜索',
+  selectProHelpTabSelect: 'Tab 选择',
+  selectProHelpCtrlAToggleAll: 'Ctrl+A 全选/取消',
+  selectProHelpEnterConfirm: 'Enter 确认',
+  selectProHelpBackspaceAgainToRemove: 'Backspace 再次按以删除',
+  selectProHelpArrowKeys: '使用方向键查看更多选项',
+
   // debug logs (low priority)
   debugProjectConfig: '项目配置: {path}',
   debugProjectConfigContent: '项目配置内容: {content}',
