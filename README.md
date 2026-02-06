@@ -154,6 +154,7 @@ nlm help <command>
 ```bash
 --debug 开启调试模式，输出详细日志
 --lang 设置语言 (zh/en)，默认自动推断
+--packageManager <name> 指定使用的包管理器 (npm/pnpm/yarn/自定义)
 ```
 
 ### 构建后自动推送
